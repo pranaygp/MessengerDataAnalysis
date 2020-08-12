@@ -1,6 +1,6 @@
 // _functionName = nested function
 
-console.log("Last Updated 26-12-2018")
+console.log("Last Updated 30-04-2019")
 
 google.charts.load('current', {packages: ['corechart']});
 google.charts.load('current', {'packages':['corechart', 'controls']});
@@ -844,7 +844,12 @@ function ChartData(mainData, subData = null, optionsOverride = null) {
 
         for (var element of messageData) {
             var newRow = NonTimeDataRow(element, mainData, styles)
-            data.addRow(newRow);
+            try {
+                data.addRow(newRow);
+            } catch (e) {
+                console.log(newRow);
+                console.error(e);
+            }
         }
 
         if (mainData == "WordsSent" || mainData == "EmojisSent") {  
@@ -1098,7 +1103,16 @@ function NonTimeDataRow(element, mainData, styles) {
     var stylesIndex = 0;
     Participants.forEach(participant => {
         // Even Columns: Participant data
-        newRow.push(Conversation[participant][mainData][element]);
+        if(typeof Conversation[participant][mainData][element] === "string") {
+            newRow.push(
+                Number(
+                    Conversation[participant][mainData][element]
+                        .slice("function Object() { [native code] }".length)
+                )
+            )
+        } else {
+            newRow.push(Conversation[participant][mainData][element]);
+        }
         // Odd Columns: Participant Style
         newRow.push(styles[stylesIndex]);
         stylesIndex++;
